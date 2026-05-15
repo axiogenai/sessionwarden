@@ -1,0 +1,11 @@
+{
+  "name": "sessionwarden",
+  "version": "1.0.0",
+  "description": "SessionWarden Auto-Logout App",
+  "scripts": {
+    "start": "npx serve ."
+  },
+  "dependencies": {
+    "serve": "^14.2.4"
+  }
+}

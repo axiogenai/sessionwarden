@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>SessionWarden | Secure Session Management</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;family=Space+Grotesk:wght@600&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary": "#00373a",
+                        "surface": "#131313",
+                        "tertiary": "#c6c4da",
+                        "tertiary-fixed-dim": "#c6c4da",
+                        "on-background": "#e5e2e1",
+                        "surface-tint": "#edb1ff",
+                        "primary": "#edb1ff",
+                        "on-tertiary": "#2f2f40",
+                        "secondary-fixed": "#6ff6ff",
+                        "on-primary-container": "#fff3fd",
+                        "on-primary": "#520070",
+                        "surface-container-highest": "#353534",
+                        "secondary-container": "#00f1fd",
+                        "surface-variant": "#353534",
+                        "outline": "#9a8c9b",
+                        "on-error": "#690005",
+                        "error-container": "#93000a",
+                        "inverse-on-surface": "#313030",
+                        "tertiary-fixed": "#e3e0f7",
+                        "primary-fixed": "#f9d8ff",
+                        "on-tertiary-fixed-variant": "#464557",
+                        "on-secondary-fixed-variant": "#004f53",
+                        "on-primary-fixed-variant": "#6e208c",
+                        "error": "#ffb4ab",
+                        "on-surface-variant": "#d1c2d2",
+                        "on-surface": "#e5e2e1",
+                        "surface-bright": "#393939",
+                        "secondary": "#dcfdff",
+                        "on-secondary-fixed": "#002022",
+                        "on-error-container": "#ffdad6",
+                        "outline-variant": "#4e4350",
+                        "tertiary-container": "#706f82",
+                        "on-secondary-container": "#006a6f",
+                        "on-primary-fixed": "#320046",
+                        "inverse-surface": "#e5e2e1",
+                        "surface-container": "#201f1f",
+                        "on-tertiary-container": "#f9f5ff",
+                        "background": "#131313",
+                        "on-tertiary-fixed": "#1a1a2a",
+                        "primary-fixed-dim": "#edb1ff",
+                        "inverse-primary": "#883ca6",
+                        "surface-dim": "#131313",
+                        "surface-container-low": "#1c1b1b",
+                        "surface-container-lowest": "#0e0e0e",
+                        "surface-container-high": "#2a2a2a",
+                        "primary-container": "#9d50bb",
+                        "secondary-fixed-dim": "#00dce6"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin": "32px",
+                        "xs": "4px",
+                        "lg": "40px",
+                        "sm": "12px",
+                        "gutter": "24px",
+                        "md": "24px",
+                        "xl": "64px",
+                        "base": "8px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Inter"],
+                        "headline-xl": ["Inter"],
+                        "body-md": ["Inter"],
+                        "label-caps": ["Space Grotesk"],
+                        "timer-display": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["28px", { "lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "headline-xl": ["40px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "letterSpacing": "0", "fontWeight": "400" }],
+                        "label-caps": ["12px", { "lineHeight": "1", "letterSpacing": "0.1em", "fontWeight": "600" }],
+                        "timer-display": ["64px", { "lineHeight": "1", "letterSpacing": "-0.05em", "fontWeight": "700" }]
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        :root {
+            --accent-gradient: linear-gradient(135deg, #9333ea 0%, #4338ca 100%);
+        }
+        ::-webkit-scrollbar {
+            display: none;
+        }
+
+        body {
+            background-color: #131313;
+            background-image: radial-gradient(circle at 50% 50%, rgba(157, 80, 187, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 100% 0%, rgba(0, 242, 254, 0.05) 0%, transparent 40%);
+            min-height: 100vh;
+            color: #e5e2e1;
+            font-family: 'Inter', sans-serif;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .glass-panel {
+            background: rgba(30, 30, 46, 0.6);
+            backdrop-filter: blur(32px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .glow-purple {
+            box-shadow: 0 0 20px rgba(157, 80, 187, 0.3);
+        }
+
+        .glow-teal {
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.2);
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .tab-section {
+            display: none;
+        }
+
+        .tab-section.active {
+            display: block;
+        }
+
+        .nav-item.active {
+            background: var(--accent-gradient);
+            color: white;
+            box-shadow: 0 0 15px rgba(157, 80, 187, 0.4);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #f12020;
+        }
+
+        .status-dot.active {
+            background: #2afd00;
+            box-shadow: 0 0 10px rgba(0, 241, 253, 0.5);
+        }
+
+        /* Component Styles */
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 1.25rem;
+            transition: all 0.3s ease;
+        }
+
+        .activity-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateX(4px);
+        }
+
+        .activity-icon {
+            font-size: 1.5rem;
+            width: 3rem;
+            height: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 1rem;
+        }
+
+        .activity-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .activity-name {
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 0.02em;
+        }
+
+        .activity-sub {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            word-break: break-all;
+        }
+
+        .badge {
+            display: inline-flex;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.625rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .badge-manual {
+            background: rgba(168, 85, 247, 0.1);
+            color: #c084fc;
+            border: 1px solid rgba(168, 85, 247, 0.2);
+        }
+
+        .badge-auto {
+            background: rgba(0, 241, 253, 0.1);
+            color: #00f1fd;
+            border: 1px solid rgba(0, 241, 253, 0.2);
+        }
+
+        .badge-success {
+            background: rgba(34, 197, 94, 0.1);
+            color: #4ade80;
+            border: 1px solid rgba(34, 197, 94, 0.2);
+        }
+
+        .badge-mini {
+            padding: 0.125rem 0.5rem;
+            font-size: 0.5rem;
+        }
+
+        .activity-group {
+            margin-bottom: 1rem;
+            border-radius: 1.5rem;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .activity-group-header {
+            padding: 1rem 1.5rem;
+            background: rgba(255, 255, 255, 0.02);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .group-title {
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .group-count {
+            font-size: 0.625rem;
+            color: #64748b;
+            font-weight: 700;
+        }
+
+        .activity-group-content {
+            display: none;
+            padding: 1rem;
+            flex-direction: column;
+            gap: 0.75rem;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .activity-group.open .activity-group-content {
+            display: flex;
+        }
+
+        .activity-group.open .group-arrow {
+            transform: rotate(180deg);
+        }
+
+        .group-arrow {
+            transition: transform 0.3s ease;
+            font-size: 10px;
+            color: #64748b;
+        }
+
+        /* Settings Components */
+        .toggle {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+
+        .toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-thumb {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.1);
+            transition: .4s;
+            border-radius: 34px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .toggle-thumb:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 2px;
+            bottom: 2px;
+            background: #94a3b8;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked+.toggle-thumb {
+            background: rgba(157, 80, 187, 0.4);
+            border-color: rgba(157, 80, 187, 0.5);
+        }
+
+        input:checked+.toggle-thumb:before {
+            transform: translateX(20px);
+            background: #edb1ff;
+            box-shadow: 0 0 10px rgba(237, 177, 255, 0.5);
+        }
+
+        .day-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 0.75rem;
+            font-size: 0.625rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #64748b;
+            transition: all 0.3s ease;
+        }
+
+        .day-btn.active {
+            background: rgba(157, 80, 187, 0.2);
+            border-color: rgba(157, 80, 187, 0.5);
+            color: #edb1ff;
+            box-shadow: 0 0 15px rgba(157, 80, 187, 0.2);
+        }
+
+        .day-btn.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .swatch {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .swatch.active {
+            border-color: #fff;
+            transform: scale(1.15);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+        }
+
+        .browser-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 1rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .browser-name {
+            font-size: 11px;
+            font-weight: 700;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .browser-icon {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .mode-config {
+            transition: all 0.3s ease;
+        }
+
+        input[type="range"] {
+            height: 6px;
+            -webkit-appearance: none;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #edb1ff;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(237, 177, 255, 0.5);
+        }
+        @keyframes heartbeat {
+            0%, 100% { transform: scaleY(0.4); opacity: 0.5; }
+            50% { transform: scaleY(1.2); opacity: 1; }
+        }
+
+        .heartbeat-bar {
+            animation: heartbeat 1.2s ease-in-out infinite;
+            transform-origin: center;
+        }
+
+        .heartbeat-bar:nth-child(1) { animation-delay: 0.0s; }
+        .heartbeat-bar:nth-child(2) { animation-delay: 0.2s; }
+        .heartbeat-bar:nth-child(3) { animation-delay: 0.4s; }
+        .heartbeat-bar:nth-child(4) { animation-delay: 0.6s; }
+        .heartbeat-bar:nth-child(5) { animation-delay: 0.8s; }
+    </style>
+</head>
+
+<body class="font-body-md overflow-x-hidden">
+
+    <!-- Sidebar Navigation (Hidden on Mobile) -->
+    <nav
+        class="hidden lg:flex fixed left-0 top-0 w-72 flex-col p-6 gap-8 bg-slate-950/50 backdrop-blur-3xl rounded-[32px] m-4 h-[calc(100vh-32px)] border border-white/5 shadow-2xl shadow-black/50 z-50">
+        <div class="flex flex-col items-center gap-4 w-full py-2">
+            <img src="cropped_centered_logo.png" class="h-28 w-auto object-contain transform translate-x-1"
+                alt="SessionWarden Logo">
+            <span
+                class="text-[11px] text-slate-400 font-black uppercase tracking-[0.3em] text-center mr-[-0.3em]">SessionWarden</span>
+        </div>
+        <div class="flex flex-col gap-2 mt-4 sidebar-nav">
+            <button
+                class="nav-item active flex items-center gap-3 px-6 py-4 rounded-full transition-transform hover:translate-x-1"
+                data-tab="dashboard" id="nav-dashboard">
+                <span class="material-symbols-outlined">Dashboard</span>
+                <span class="text-sm font-semibold tracking-wide uppercase">Dashboard</span>
+            </button>
+            <button
+                class="nav-item text-slate-500 flex items-center gap-3 px-6 py-4 rounded-full hover:text-slate-200 hover:bg-white/5 transition-transform hover:translate-x-1"
+                data-tab="timer" id="nav-timer">
+                <span class="material-symbols-outlined">Timer</span>
+                <span class="text-sm font-semibold tracking-wide uppercase">Timer Settings</span>
+            </button>
+            <button
+                class="nav-item text-slate-500 flex items-center gap-3 px-6 py-4 rounded-full hover:text-slate-200 hover:bg-white/5 transition-transform hover:translate-x-1"
+                data-tab="history" id="nav-history">
+                <span class="material-symbols-outlined">History</span>
+                <span class="text-sm font-semibold tracking-wide uppercase">History</span>
+            </button>
+            <button
+                class="nav-item text-slate-500 flex items-center gap-3 px-6 py-4 rounded-full hover:text-slate-200 hover:bg-white/5 transition-transform hover:translate-x-1"
+                data-tab="activity" id="nav-activity">
+                <span class="material-symbols-outlined">Analytics</span>
+                <span class="text-sm font-semibold tracking-wide uppercase">Activity</span>
+            </button>
+            <button
+                class="nav-item text-slate-500 flex items-center gap-3 px-6 py-4 rounded-full hover:text-slate-200 hover:bg-white/5 transition-transform hover:translate-x-1"
+                data-tab="settings" id="nav-settings">
+                <span class="material-symbols-outlined">Settings</span>
+                <span class="text-sm font-semibold tracking-wide uppercase">Settings</span>
+            </button>
+        </div>
+        <div class="mt-auto p-6 bg-white/5 rounded-[24px] border border-white/5">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10">
+                    <span class="material-symbols-outlined text-primary text-xl">shield</span>
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-[10px] font-black text-white uppercase tracking-wider">SYSTEM</span>
+                    <div class="flex items-center gap-1">
+                        <span class="status-dot" id="sidebar-status-dot"></span>
+                        <span class="text-[9px] text-teal-400/80 font-bold uppercase"
+                            id="sidebar-status-text">Protected</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Top Bar -->
+    <div class="lg:hidden fixed top-0 left-0 right-0 z-[60] flex items-center justify-between px-6 py-4 bg-slate-950/80 backdrop-blur-xl border-b border-white/5">
+        <div class="flex items-center gap-3">
+            <img src="cropped_centered_logo.png" class="h-10 w-auto object-contain" alt="Logo">
+            <span class="text-[10px] text-white font-black uppercase tracking-[0.2em]">SessionWarden</span>
+        </div>
+        <div id="ext-status-dot-mobile" class="w-2 h-2 rounded-full bg-teal-400 shadow-[0_0_8px_rgba(45,212,191,0.5)]"></div>
+    </div>
+
+    <!-- Mobile Bottom Navigation -->
+    <nav class="lg:hidden fixed bottom-4 left-4 right-4 z-50 flex justify-around items-center p-2 bg-slate-900/80 backdrop-blur-2xl rounded-full border border-white/10 shadow-2xl sidebar-nav">
+        <button class="nav-item active p-4 rounded-full" data-tab="dashboard">
+            <span class="material-symbols-outlined text-2xl">Dashboard</span>
+        </button>
+        <button class="nav-item text-slate-500 p-4 rounded-full" data-tab="timer">
+            <span class="material-symbols-outlined text-2xl">Timer</span>
+        </button>
+        <button class="nav-item text-slate-500 p-4 rounded-full" data-tab="history">
+            <span class="material-symbols-outlined text-2xl">History</span>
+        </button>
+        <button class="nav-item text-slate-500 p-4 rounded-full" data-tab="activity">
+            <span class="material-symbols-outlined text-2xl">Analytics</span>
+        </button>
+        <button class="nav-item text-slate-500 p-4 rounded-full" data-tab="settings">
+            <span class="material-symbols-outlined text-2xl">Settings</span>
+        </button>
+    </nav>
+
+    <!-- Header / Top Bar -->
+    <header
+        class="fixed top-20 lg:top-0 left-4 lg:left-[320px] right-4 lg:right-0 z-50 flex justify-between items-center px-8 py-3 max-w-7xl lg:mx-auto bg-slate-900/60 backdrop-blur-2xl rounded-full lg:mt-4 lg:mx-4 border border-white/5 shadow-2xl">
+        <div class="flex items-center gap-6">
+            <div class="flex items-center gap-2 px-5 py-2 bg-white/5 rounded-full border border-white/5"
+                id="ext-status-indicator">
+                <span class="status-dot" id="ext-status-dot"></span>
+                <span class="text-[10px] font-bold text-slate-300 uppercase tracking-widest"
+                    id="ext-status-text">Extension Disconnected</span>
+            </div>
+            <a href="sessionwarden_extension.zip" download
+                class="flex items-center gap-2 px-5 py-2 bg-primary/10 text-primary border border-primary/20 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-primary/20 transition-all"
+                id="header-download-btn">
+                <span class="material-symbols-outlined text-sm">download</span>
+                Download Extension
+            </a>
+        </div>
+        <div class="flex items-center gap-4">
+            <button
+                class="bg-error/10 hover:bg-error/20 text-error text-[10px] font-black px-4 sm:px-8 py-2 rounded-full transition-all duration-300 active:scale-95 border border-error/20 uppercase tracking-widest flex items-center gap-2"
+                id="logout-now-btn">
+                <span class="material-symbols-outlined text-sm">logout</span>
+                <span class="hidden sm:inline">Logout Now</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="ml-0 lg:ml-80 pt-40 lg:pt-32 p-4 lg:p-8 max-w-7xl mx-auto mb-24 lg:mb-0">
+
+        <!-- ======================== DASHBOARD TAB ======================== -->
+        <section class="tab-section active" id="tab-dashboard">
+            <div class="mb-10">
+                <h1 class="font-headline-xl text-3xl lg:text-headline-xl text-white tracking-widest opacity-90 uppercase">Dashboard
+                </h1>
+                <div class="h-1 w-12 bg-primary rounded-full mt-2"></div>
+            </div>
+
+            <!-- Stats row -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                <div class="glass-panel p-6 rounded-[32px] flex flex-col gap-2 relative overflow-hidden group">
+                    <div
+                        class="absolute -right-4 -top-4 w-24 h-24 bg-primary/10 rounded-full blur-2xl group-hover:bg-primary/20 transition-all">
+                    </div>
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Sessions Tracked</span>
+                    <span class="text-2xl font-bold text-white">Ended: <span id="stat-sessions">0</span></span>
+                </div>
+                <div class="glass-panel p-6 rounded-[32px] flex flex-col gap-2 relative overflow-hidden group">
+                    <div
+                        class="absolute -right-4 -top-4 w-24 h-24 bg-secondary-container/10 rounded-full blur-2xl group-hover:bg-secondary-container/20 transition-all">
+                    </div>
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Auto
+                        Terminations</span>
+                    <span class="text-2xl font-bold text-white">Logouts: <span id="stat-logouts">0</span></span>
+                </div>
+                <div class="glass-panel p-6 rounded-[32px] flex flex-col gap-2 relative overflow-hidden group">
+                    <div
+                        class="absolute -right-4 -top-4 w-24 h-24 bg-tertiary-container/10 rounded-full blur-2xl group-hover:bg-tertiary-container/20 transition-all">
+                    </div>
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Scheduled Action</span>
+                    <span class="text-2xl font-bold text-white">Next: <span id="stat-next">--:--</span></span>
+                </div>
+            </div>
+
+            <!-- Main Timer Section -->
+            <section class="glass-panel rounded-[48px] p-10 flex flex-col gap-10">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                    <!-- Left Side: Circular Timer -->
+                    <div class="flex items-center gap-10">
+                        <div class="relative w-64 h-64 flex items-center justify-center">
+                            <svg class="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 200 200">
+                                <circle class="stroke-white/5 fill-none" cx="100" cy="100" r="88" stroke-width="8">
+                                </circle>
+                                <circle class="stroke-primary fill-none"
+                                    cx="100" cy="100" r="88" stroke-width="8" stroke-dasharray="552.92"
+                                    stroke-dashoffset="552.92" id="ring-progress" stroke-linecap="round"
+                                    style="filter: drop-shadow(0 0 8px rgba(237, 177, 255, 0.4))"></circle>
+                            </svg>
+                            <span class="font-timer-display text-4xl lg:text-5xl text-white tracking-tighter relative z-10"
+                                id="countdown-display">00:00:00</span>
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">System
+                                Heartbeat</span>
+                            <span class="text-xs font-bold text-slate-300 uppercase tracking-widest"
+                                id="countdown-sublabel">Timer not running</span>
+                        </div>
+                    </div>
+
+                    <!-- Right Side: Controls -->
+                    <div class="flex flex-col gap-8">
+                        <div>
+                            <span
+                                class="text-[10px] font-bold text-slate-400 block mb-4 uppercase tracking-widest">Quick
+                                Interval</span>
+                            <div class="grid grid-cols-3 gap-3 quick-btns">
+                                <button
+                                    class="bg-white/5 hover:bg-white/10 text-white text-[10px] font-bold py-3 rounded-xl transition-all border border-white/5 active:scale-95 quick-btn"
+                                    data-mins="5">5 min</button>
+                                <button
+                                    class="bg-white/5 hover:bg-white/10 text-white text-[10px] font-bold py-3 rounded-xl transition-all border border-white/5 active:scale-95 quick-btn"
+                                    data-mins="15">15 min</button>
+                                <button
+                                    class="bg-white/5 hover:bg-white/10 text-white text-[10px] font-bold py-3 rounded-xl transition-all border border-white/5 active:scale-95 quick-btn"
+                                    data-mins="30">30 min</button>
+                                <button
+                                    class="bg-white/5 hover:bg-white/10 text-white text-[10px] font-bold py-3 rounded-xl transition-all border border-white/5 active:scale-95 quick-btn"
+                                    data-mins="60">1 hr</button>
+                                <button
+                                    class="bg-white/5 hover:bg-white/10 text-white text-[10px] font-bold py-3 rounded-xl transition-all border border-white/5 active:scale-95 quick-btn"
+                                    data-mins="240">4 hr</button>
+                                <button
+                                    class="bg-white/5 hover:bg-white/10 text-white text-[10px] font-bold py-3 rounded-xl transition-all border border-white/5 active:scale-95 quick-btn"
+                                    data-mins="480">8 hr</button>
+                            </div>
+                        </div>
+                        <div>
+                            <span
+                                class="text-[10px] font-bold text-slate-400 block mb-4 uppercase tracking-widest">Custom
+                                Timer</span>
+                            <div class="flex gap-4 custom-timer-inputs">
+                                <div class="flex-1">
+                                    <label
+                                        class="text-[8px] text-slate-500 uppercase font-bold ml-2 mb-1 block">Hrs</label>
+                                    <input
+                                        class="w-full bg-slate-950/50 border border-white/10 rounded-2xl text-white text-center py-2 text-sm focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all outline-none"
+                                        type="number" id="custom-hours" value="0" min="0" max="99" oninput="if(this.value.length > 2) this.value = this.value.slice(0, 2)" />
+                                </div>
+                                <div class="flex-1">
+                                    <label
+                                        class="text-[8px] text-slate-500 uppercase font-bold ml-2 mb-1 block">Min</label>
+                                    <input
+                                        class="w-full bg-slate-950/50 border border-white/10 rounded-2xl text-white text-center py-2 text-sm focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all outline-none"
+                                        type="number" id="custom-mins" value="0" min="0" max="59" oninput="if(this.value.length > 2) this.value = this.value.slice(0, 2)" />
+                                </div>
+                                <div class="flex-1">
+                                    <label
+                                        class="text-[8px] text-slate-500 uppercase font-bold ml-2 mb-1 block">Sec</label>
+                                    <input
+                                        class="w-full bg-slate-950/50 border border-white/10 rounded-2xl text-white text-center py-2 text-sm focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all outline-none"
+                                        type="number" id="custom-secs" value="1" min="0" max="59" oninput="if(this.value.length > 2) this.value = this.value.slice(0, 2)" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom Action Buttons -->
+                <div class="flex flex-col sm:flex-row gap-4 pt-8 border-t border-white/5 timer-action-btns">
+                    <button
+                        class="flex-[2] text-white font-bold py-5 rounded-[28px] shadow-[0_0_30px_rgba(157,80,187,0.3)] transition-all active:scale-[0.98] flex items-center justify-center gap-2 uppercase tracking-widest text-xs"
+                        id="start-timer-btn"
+                        style="background: var(--accent-gradient); border: none;">
+                        <span class="material-symbols-outlined text-lg">play_arrow</span> Start Timer
+                    </button>
+                    <button
+                        class="flex-1 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold py-5 rounded-[28px] transition-all active:scale-[0.98] flex items-center justify-center gap-2 uppercase tracking-widest text-xs"
+                        id="pause-timer-btn" disabled>
+                        <span class="material-symbols-outlined text-lg">pause</span> Pause
+                    </button>
+                    <button
+                        class="flex-1 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-400 hover:text-white font-bold py-5 rounded-[28px] transition-all active:scale-[0.98] flex items-center justify-center gap-2 uppercase tracking-widest text-xs"
+                        id="reset-timer-btn">
+                        <span class="material-symbols-outlined text-lg">refresh</span> Reset
+                    </button>
+                </div>
+            </section>
+
+            <!-- Session Integrity Status -->
+            <div class="mt-8 glass-panel rounded-[32px] p-8 overflow-hidden relative">
+                <div class="relative z-10 flex justify-between items-center">
+                    <div>
+                        <h3 class="text-white font-bold text-xl mb-1">Session Integrity Status</h3>
+                        <p class="text-slate-400 text-sm">Real-time encryption and session heartbeat active.</p>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <div class="h-8 w-1 bg-teal-400/20 rounded-full heartbeat-bar"></div>
+                        <div class="h-12 w-1 bg-teal-400/40 rounded-full heartbeat-bar"></div>
+                        <div class="h-6 w-1 bg-teal-400/60 rounded-full heartbeat-bar"></div>
+                        <div class="h-10 w-1 bg-teal-400/80 rounded-full heartbeat-bar"></div>
+                        <div class="h-14 w-1 bg-teal-400 glow-teal rounded-full heartbeat-bar"></div>
+                    </div>
+                </div>
+                <div
+                    class="absolute top-0 right-0 h-full w-1/3 bg-gradient-to-l from-secondary-container/5 to-transparent pointer-events-none">
+                </div>
+            </div>
+        </section>
+
+        <!-- ======================== TIMER SETTINGS TAB ======================== -->
+        <section class="tab-section" id="tab-timer">
+            <div class="mb-10">
+                <h1 class="font-headline-xl text-3xl lg:text-headline-xl text-white tracking-widest opacity-90 uppercase">Timer
+                    Settings</h1>
+                <p class="text-xs text-slate-500 font-bold uppercase tracking-widest mt-1">Configure advanced scheduling
+                    for auto-logout</p>
+                <div class="h-1 w-12 bg-primary rounded-full mt-4"></div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+                <!-- Column 1: Schedule Mode -->
+                <div class="glass-panel p-8 rounded-[40px] flex flex-col gap-6">
+                    <div class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-primary">alarm</span>
+                        <h3 class="text-xs font-bold text-white uppercase tracking-[0.2em]">Schedule Mode</h3>
+                    </div>
+                    <div class="flex flex-col gap-3">
+                        <label
+                            class="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 cursor-pointer hover:bg-white/10 transition-all border-l-4 border-l-transparent has-[:checked]:border-l-primary has-[:checked]:bg-primary/5">
+                            <input type="radio" name="schedule-mode" value="interval" class="w-5 h-5 accent-primary"
+                                checked id="mode-interval">
+                            <div class="flex flex-col">
+                                <span class="text-[11px] font-bold text-white uppercase tracking-wider">Interval</span>
+                                <span class="text-[9px] text-slate-400">Logout every X minutes/hours</span>
+                            </div>
+                        </label>
+                        <label
+                            class="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 cursor-pointer hover:bg-white/10 transition-all border-l-4 border-l-transparent has-[:checked]:border-l-primary has-[:checked]:bg-primary/5">
+                            <input type="radio" name="schedule-mode" value="specific" class="w-5 h-5 accent-primary"
+                                id="mode-specific">
+                            <div class="flex flex-col">
+                                <span class="text-[11px] font-bold text-white uppercase tracking-wider">Specific
+                                    Time</span>
+                                <span class="text-[9px] text-slate-400">Logout at a set daily time</span>
+                            </div>
+                        </label>
+                        <label
+                            class="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 cursor-pointer hover:bg-white/10 transition-all border-l-4 border-l-transparent has-[:checked]:border-l-primary has-[:checked]:bg-primary/5">
+                            <input type="radio" name="schedule-mode" value="idle" class="w-5 h-5 accent-primary"
+                                id="mode-idle">
+                            <div class="flex flex-col">
+                                <span class="text-[11px] font-bold text-white uppercase tracking-wider">After
+                                    Idle</span>
+                                <span class="text-[9px] text-slate-400">Logout after device is idle</span>
+                            </div>
+                        </label>
+                    </div>
+                    <!-- Dynamic Config Sections -->
+                    <div id="config-interval" class="mode-config mt-4">
+                        <div class="flex justify-between items-center mb-3 px-1">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Interval
+                                Duration</span>
+                            <span class="text-[10px] font-bold text-primary" id="interval-label">30 minutes</span>
+                        </div>
+                        <input type="range" min="1" max="1440" value="30" class="w-full accent-primary"
+                            id="interval-slider">
+                    </div>
+                    <div id="config-specific" class="mode-config mt-4 hidden">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2">Set
+                            Logout Time</span>
+                        <input type="time" id="specific-time"
+                            class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-white outline-none focus:border-primary transition-all"
+                            value="22:00">
+                    </div>
+                    <div id="config-idle" class="mode-config mt-4 hidden">
+                        <div class="flex justify-between items-center mb-3 px-1">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Idle
+                                Threshold</span>
+                            <span class="text-[10px] font-bold text-primary" id="idle-label">10 minutes</span>
+                        </div>
+                        <input type="range" min="1" max="120" value="10" class="w-full accent-primary" id="idle-slider">
+                    </div>
+                </div>
+
+                <!-- Column 2: Active Days -->
+                <div class="glass-panel p-8 rounded-[40px] flex flex-col gap-6">
+                    <div class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-primary">calendar_month</span>
+                        <h3 class="text-xs font-bold text-white uppercase tracking-[0.2em]">Active Days</h3>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <button class="day-btn" data-day="mon">Mon</button>
+                        <button class="day-btn" data-day="tue">Tue</button>
+                        <button class="day-btn" data-day="wed">Wed</button>
+                        <button class="day-btn" data-day="thu">Thu</button>
+                        <button class="day-btn" data-day="fri">Fri</button>
+                        <button class="day-btn disabled" data-day="sat">Sat</button>
+                        <button class="day-btn disabled" data-day="sun">Sun</button>
+                    </div>
+                    <p class="text-[9px] text-slate-500 font-bold uppercase tracking-widest mt-2">Click days to toggle
+                        active schedule days</p>
+                </div>
+
+                <!-- Column 3: Notifications -->
+                <div class="glass-panel p-8 rounded-[40px] flex flex-col gap-6">
+                    <div class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-primary">notifications</span>
+                        <h3 class="text-xs font-bold text-white uppercase tracking-[0.2em]">Notifications</h3>
+                    </div>
+                    <div class="flex flex-col gap-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[11px] font-bold text-slate-300 uppercase tracking-wider">Show countdown
+                                warning</span>
+                            <label class="toggle">
+                                <input type="checkbox" id="toggle-warning" checked>
+                                <span class="toggle-thumb"></span>
+                            </label>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-[11px] font-bold text-slate-300 uppercase tracking-wider">Desktop
+                                notification</span>
+                            <label class="toggle">
+                                <input type="checkbox" id="toggle-notif" checked>
+                                <span class="toggle-thumb"></span>
+                            </label>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-[11px] font-bold text-slate-300 uppercase tracking-wider">Sound
+                                alert</span>
+                            <label class="toggle">
+                                <input type="checkbox" id="toggle-sound">
+                                <span class="toggle-thumb"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-6 border-t border-white/5">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Warn me before
+                                logout</span>
+                            <span class="text-[10px] font-bold text-primary" id="warn-label">10 seconds</span>
+                        </div>
+                        <input type="range" min="5" max="60" value="10" class="w-full accent-primary" id="warn-slider">
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-panel p-4 rounded-[32px]">
+                <button
+                    class="w-full text-white font-black py-4 rounded-2xl uppercase tracking-[0.2em] text-xs transition-all flex items-center justify-center gap-3 active:scale-[0.98]"
+                    id="save-config-btn" style="background: var(--accent-gradient); border: none;">
+                    <span class="material-symbols-outlined text-lg">save</span> Save Timer Settings
+                </button>
+            </div>
+        </section>
+
+        <!-- ======================== HISTORY TAB ======================== -->
+        <section class="tab-section" id="tab-history">
+            <div class="mb-10 flex justify-between items-end">
+                <div>
+                    <h1 class="font-headline-xl text-3xl lg:text-headline-xl text-white tracking-widest opacity-90 uppercase">
+                        History</h1>
+                    <div class="h-1 w-12 bg-primary rounded-full mt-2"></div>
+                </div>
+                <button
+                    class="px-6 py-2 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold uppercase tracking-widest hover:bg-white/10"
+                    id="clear-history-btn">Clear Logs</button>
+            </div>
+            <div class="glass-panel rounded-[40px] overflow-x-auto border border-white/5">
+                <table class="w-full text-left border-collapse table-fixed">
+                    <thead>
+                        <tr
+                            class="border-b border-white/5 bg-white/5 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                            <th class="w-[35%] pl-12 pr-4 py-5">Timestamp</th>
+                            <th class="w-[20%] px-6 py-5">Event Type</th>
+                            <th class="w-[20%] px-6 py-5">Accounts</th>
+                            <th class="w-[25%] pl-6 pr-12 py-5 text-right">Outcome</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-tbody" class="text-[11px] font-bold text-slate-300">
+                        <!-- Data injected by app.js -->
+                    </tbody>
+                </table>
+                <div id="history-empty" class="p-20 text-center flex flex-col items-center gap-4 hidden">
+                    <span class="material-symbols-outlined text-6xl text-slate-800">history_toggle_off</span>
+                    <p class="text-slate-600 uppercase text-[10px] font-black tracking-widest">No activity recorded yet
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ======================== ACTIVITY TAB ======================== -->
+        <section class="tab-section" id="tab-activity">
+            <div class="mb-10 flex justify-between items-end">
+                <div>
+                    <h1 class="font-headline-xl text-3xl lg:text-headline-xl text-white tracking-widest opacity-90 uppercase">
+                        Activity</h1>
+                    <div class="h-1 w-12 bg-primary rounded-full mt-2"></div>
+                </div>
+                <button
+                    class="px-6 py-2 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold uppercase tracking-widest hover:bg-white/10"
+                    id="refresh-activity-btn">Refresh</button>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="glass-panel p-8 rounded-[40px] border border-white/5">
+                    <div class="flex items-center gap-3 mb-8">
+                        <span class="material-symbols-outlined text-primary">tab</span>
+                        <h3 class="text-xs font-bold text-white uppercase tracking-[0.2em]">Terminated Tabs</h3>
+                    </div>
+                    <div id="activity-tabs-list" class="flex flex-col gap-4">
+                        <!-- Data injected by app.js -->
+                    </div>
+                </div>
+                <div class="glass-panel p-8 rounded-[40px] border border-white/5">
+                    <div class="flex items-center gap-3 mb-8">
+                        <span class="material-symbols-outlined text-teal-400">cookie</span>
+                        <h3 class="text-xs font-bold text-white uppercase tracking-[0.2em]">Purged Cookies</h3>
+                    </div>
+                    <div id="activity-cookies-list" class="flex flex-col gap-4">
+                        <!-- Data injected by app.js -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ======================== APP SETTINGS TAB ======================== -->
+        <section class="tab-section" id="tab-settings">
+            <div class="mb-10">
+                <h1 class="font-headline-xl text-3xl lg:text-headline-xl text-white tracking-widest opacity-90 uppercase">App
+                    Settings</h1>
+                <p class="text-xs text-slate-500 font-bold uppercase tracking-widest mt-1">Customize app behavior and
+                    preferences</p>
+                <div class="h-1 w-12 bg-primary rounded-full mt-4"></div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Appearance -->
+                <div class="glass-panel p-8 rounded-[32px] flex flex-col gap-6">
+                    <div class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-primary text-lg">palette</span>
+                        <h3 class="text-[11px] font-black text-white uppercase tracking-widest">Appearance</h3>
+                    </div>
+                    <div class="flex flex-col gap-5">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[11px] text-slate-300 font-bold uppercase tracking-wider">Dark mode</span>
+                            <label class="toggle">
+                                <input type="checkbox" id="toggle-dark" checked>
+                                <span class="toggle-thumb"></span>
+                            </label>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-[11px] text-slate-300 font-bold uppercase tracking-wider">Animated
+                                background</span>
+                            <label class="toggle">
+                                <input type="checkbox" id="toggle-anim" checked>
+                                <span class="toggle-thumb"></span>
+                            </label>
+                        </div>
+                        <div class="mt-2">
+                            <span
+                                class="text-[9px] text-slate-500 font-bold uppercase tracking-widest block mb-4">Theme Gradient</span>
+                            <div class="flex flex-wrap gap-3">
+                                <button class="swatch active" style="background: linear-gradient(135deg, #9333ea 0%, #4338ca 100%)" data-gradient="linear-gradient(135deg, #9333ea 0%, #4338ca 100%)"></button>
+                                <button class="swatch" style="background: linear-gradient(135deg, #ec4899 0%, #f97316 100%)" data-gradient="linear-gradient(135deg, #ec4899 0%, #f97316 100%)"></button>
+                                <button class="swatch" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%)" data-gradient="linear-gradient(135deg, #10b981 0%, #059669 100%)"></button>
+                                <button class="swatch" style="background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%)" data-gradient="linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%)"></button>
+                                <button class="swatch" style="background: linear-gradient(135deg, #475569 0%, #1e1b4b 100%)" data-gradient="linear-gradient(135deg, #475569 0%, #1e1b4b 100%)"></button>
+                                <button class="swatch" style="background: linear-gradient(135deg, #ef4444 0%, #a855f7 100%)" data-gradient="linear-gradient(135deg, #ef4444 0%, #a855f7 100%)"></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security -->
+                <div class="glass-panel p-8 rounded-[32px] flex flex-col gap-6">
+                    <div class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-amber-400 text-lg">lock</span>
+                        <h3 class="text-[11px] font-black text-white uppercase tracking-widest">Security</h3>
+                    </div>
+                    <div class="flex flex-col gap-5">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[11px] text-slate-300 font-bold uppercase tracking-wider">Confirm before
+                                logout</span>
+                            <label class="toggle">
+                                <input type="checkbox" id="toggle-confirm" checked>
+                                <span class="toggle-thumb"></span>
+                            </label>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-[11px] text-slate-300 font-bold uppercase tracking-wider">Clear browser
+                                cache too</span>
+                            <label class="toggle">
+                                <input type="checkbox" id="toggle-cache">
+                                <span class="toggle-thumb"></span>
+                            </label>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-[11px] text-slate-300 font-bold uppercase tracking-wider">Clear saved
+                                passwords</span>
+                            <label class="toggle">
+                                <input type="checkbox" id="toggle-passwords">
+                                <span class="toggle-thumb"></span>
+                            </label>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-[11px] text-slate-300 font-bold uppercase tracking-wider">Log logout
+                                activity</span>
+                            <label class="toggle">
+                                <input type="checkbox" id="toggle-log" checked>
+                                <span class="toggle-thumb"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Browsers -->
+                <div class="glass-panel p-8 rounded-[32px] flex flex-col gap-6">
+                    <div class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-blue-400 text-lg">language</span>
+                        <h3 class="text-[11px] font-black text-white uppercase tracking-widest">Browsers</h3>
+                    </div>
+                    <p class="text-[9px] text-slate-500 font-bold uppercase tracking-widest -mt-2">Select which browsers
+                        to target</p>
+                    <div id="browser-list" class="flex flex-col gap-4">
+                        <!-- Data injected by app.js -->
+                    </div>
+                </div>
+
+                <!-- Data Management -->
+                <div class="glass-panel p-8 rounded-[32px] flex flex-col gap-6">
+                    <div class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-slate-400 text-lg">delete</span>
+                        <h3 class="text-[11px] font-black text-white uppercase tracking-widest">Data Management</h3>
+                    </div>
+                    <div class="flex flex-col gap-3">
+                        <button
+                            class="w-full flex items-center justify-between p-4 bg-white/5 border border-white/5 rounded-2xl hover:bg-white/10 transition-all text-slate-300"
+                            id="export-data-btn">
+                            <div class="flex items-center gap-3">
+                                <span class="material-symbols-outlined text-sm text-blue-400">upload</span>
+                                <span class="text-[10px] font-black uppercase tracking-widest">Export History</span>
+                            </div>
+                        </button>
+                        <button
+                            class="w-full flex flex-col items-center gap-2 p-4 bg-error/10 border border-error/20 rounded-2xl hover:bg-error/20 transition-all text-error mt-2"
+                            id="reset-app-btn">
+                            <div class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-sm">warning</span>
+                                <span class="text-[10px] font-black uppercase tracking-widest">Reset App Data</span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Overlays -->
+    <div id="cleanup-overlay" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-6">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-md"></div>
+        <div
+            class="glass-panel p-10 rounded-[40px] max-w-sm w-full flex flex-col gap-8 relative z-10 border border-white/5 shadow-2xl">
+            <div class="flex items-center gap-4">
+                <div
+                    class="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
+                    <span class="material-symbols-outlined">verified_user</span>
+                </div>
+                <h2 class="text-[13px] font-black text-primary uppercase tracking-[0.2em]">Cleanup Sequence Initiated
+                </h2>
+            </div>
+
+            <div class="flex flex-col gap-5 px-2">
+                <div class="flex items-center gap-4">
+                    <span
+                        class="w-5 h-5 rounded-full bg-teal-400/20 flex items-center justify-center text-[10px] text-teal-400">
+                        <span class="material-symbols-outlined text-sm">check</span>
+                    </span>
+                    <span class="text-[10px] font-black text-slate-300 uppercase tracking-[0.15em]"
+                        id="report-cookies">0 Cookies Cleared</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span
+                        class="w-5 h-5 rounded-full bg-teal-400/20 flex items-center justify-center text-[10px] text-teal-400">
+                        <span class="material-symbols-outlined text-sm">check</span>
+                    </span>
+                    <span class="text-[10px] font-black text-slate-300 uppercase tracking-[0.15em]">Browsing Data
+                        Removed</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span
+                        class="w-5 h-5 rounded-full bg-teal-400/20 flex items-center justify-center text-[10px] text-teal-400">
+                        <span class="material-symbols-outlined text-sm">check</span>
+                    </span>
+                    <span class="text-[10px] font-black text-slate-300 uppercase tracking-[0.15em]">Chrome Process
+                        Terminated</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span
+                        class="w-5 h-5 rounded-full bg-teal-400/20 flex items-center justify-center text-[10px] text-teal-400">
+                        <span class="material-symbols-outlined text-sm">check</span>
+                    </span>
+                    <span class="text-[10px] font-black text-slate-300 uppercase tracking-[0.15em]" id="report-tabs">0
+                        Tabs Closed</span>
+                </div>
+            </div>
+
+            <!-- Automated dismissal sequence active -->
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal-overlay" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-6">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+        <div class="glass-panel p-10 rounded-[40px] max-w-sm w-full text-center flex flex-col gap-6 relative z-10">
+            <span class="material-symbols-outlined text-5xl text-primary">security_update_warning</span>
+            <h3 class="text-xl font-bold text-white uppercase tracking-widest" id="modal-title">System Request</h3>
+            <p class="text-sm text-slate-400" id="modal-desc">Confirm authentication for this action.</p>
+            <div class="flex gap-4 mt-2">
+                <button
+                    class="flex-1 py-4 rounded-full text-xs font-bold uppercase tracking-widest bg-white/5 hover:bg-white/10"
+                    id="modal-cancel">Cancel</button>
+                <button
+                    class="flex-1 py-4 rounded-full text-xs font-bold uppercase tracking-widest bg-primary text-black hover:brightness-110"
+                    id="modal-confirm">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Hidden Background Tools -->
+    <iframe id="logout-frame" style="display:none;"></iframe>
+    <div id="color-bends-container" class="fixed inset-0 -z-10 pointer-events-none opacity-50"></div>
+
+    <!-- Scripts -->
+    <script src="app.js?v=7"></script>
+    <script type="module" src="color-bends.js"></script>
+
+</body>
+
+</html>
